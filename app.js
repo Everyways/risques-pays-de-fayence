@@ -5,15 +5,15 @@ const GEORISQUES_WMS = 'https://georisques.gouv.fr/services';
 const IGN_WMS = 'https://data.geopf.fr/wms-r/wms';
 
 const COMMUNES = [
-  { code: '83008', nom: 'Bagnols-en-Forêt' },
-  { code: '83029', nom: 'Callian' },
-  { code: '83055', nom: 'Fayence' },
-  { code: '83080', nom: 'Mons' },
-  { code: '83081', nom: 'Montauroux' },
-  { code: '83117', nom: 'Saint-Paul-en-Forêt' },
-  { code: '83124', nom: 'Seillans' },
-  { code: '83133', nom: 'Tanneron' },
-  { code: '83138', nom: 'Tourrettes' },
+  { code: '83008', nom: 'Bagnols-en-Forêt', centre: [43.5328, 6.7089] },
+  { code: '83029', nom: 'Callian', centre: [43.6069, 6.7601] },
+  { code: '83055', nom: 'Fayence', centre: [43.6118, 6.6762] },
+  { code: '83080', nom: 'Mons', centre: [43.7041, 6.7054] },
+  { code: '83081', nom: 'Montauroux', centre: [43.5936, 6.7993] },
+  { code: '83117', nom: 'Saint-Paul-en-Forêt', centre: [43.5681, 6.6822] },
+  { code: '83124', nom: 'Seillans', centre: [43.6326, 6.6024] },
+  { code: '83133', nom: 'Tanneron', centre: [43.5732, 6.8538] },
+  { code: '83138', nom: 'Tourrettes', centre: [43.609, 6.7252] },
 ];
 const ALL_CODES = COMMUNES.map(c => c.code);
 const nomCommune = code => COMMUNES.find(c => c.code === code)?.nom || code;
@@ -87,7 +87,62 @@ const wms = (url, layers, attribution) => L.tileLayer.wms(url, {
 });
 const attribGR = '<a href="https://www.georisques.gouv.fr">Géorisques</a>';
 
+const cadastre = L.tileLayer(
+  'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS' +
+  '&STYLE=PCI%20vecteur&FORMAT=image/png&TILEMATRIXSET=PM_0_19&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
+  { maxZoom: 19, attribution: attribIGN });
+
+// Stations hydrométriques en service (Hub'Eau) ; hauteur lue à l'ouverture de la bulle
+const STATIONS = [
+  { code: 'Y551404001', nom: 'La Siagne à Callian [Ajustadoux]', pos: [43.6646, 6.7621], vigicrues: true },
+  { code: 'Y551541001', nom: 'La Siagnole à Mons [Le Moulin]', pos: [43.6772, 6.7171] },
+  { code: 'Y551601001', nom: 'La Siagne [source des Tuves] à Montauroux', pos: [43.6420, 6.7906] },
+  { code: 'Y552000201', nom: 'Le Riou Blanc à Tourrettes [La Camandre]', pos: [43.6049, 6.7143] },
+  { code: 'Y552000301', nom: '[Camiole] à Callian', pos: [43.6206, 6.7380] },
+];
+const stationsLayer = L.layerGroup(STATIONS.map(st =>
+  L.circleMarker(st.pos, { radius: 7, color: '#fff', weight: 2, fillColor: '#1c7ed6', fillOpacity: 1 })
+    .bindPopup(`<strong>${esc(st.nom)}</strong><br><span class="hint">Chargement…</span>`)
+    .on('popupopen', e => hauteurStation(st, e.popup))));
+
+// Dernière mesure : API Vigicrues pour les stations Vigicrues (hauteur + débit), Hub'Eau sinon ou en secours
+async function mesuresVigicrues(code) {
+  const url = grd => `https://www.vigicrues.gouv.fr/services/observations.json?CdStationHydro=${code}&FormatDate=iso${grd ? `&GrdSerie=${grd}` : ''}`;
+  const [h, q] = await Promise.all([getJSON(url()), getJSON(url('Q')).catch(() => null)]);
+  const obs = h.Serie.ObssHydro;
+  const last = obs.at(-1);
+  const veille = obs.find(o => new Date(o.DtObsHydro) >= new Date(new Date(last.DtObsHydro) - 864e5)) || obs[0];
+  const debit = q?.Serie?.ObssHydro?.at(-1)?.ResObsHydro;
+  return { hauteur: last.ResObsHydro, date: last.DtObsHydro, variation: last.ResObsHydro - veille.ResObsHydro, debit, source: 'Vigicrues' };
+}
+async function mesuresHubeau(code) {
+  const j = await getJSON(`https://hubeau.eaufrance.fr/api/v2/hydrometrie/observations_tr?code_entite=${code}&grandeur_hydro=H&size=1&sort=desc`);
+  const o = j.data?.[0];
+  return o && { hauteur: o.resultat_obs / 1000, date: o.date_obs, source: "Hub'Eau" };
+}
+
+async function hauteurStation(st, popup) {
+  const lien = st.vigicrues
+    ? `https://www.vigicrues.gouv.fr/station/${st.code}`
+    : `https://www.hydro.eaufrance.fr/stationhydro/${st.code}/fiche`;
+  const m2 = v => v.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  let info;
+  try {
+    const m = st.vigicrues ? await mesuresVigicrues(st.code).catch(() => mesuresHubeau(st.code)) : await mesuresHubeau(st.code);
+    info = m
+      ? `Hauteur : <strong>${m2(m.hauteur)} m</strong>` +
+        (m.variation != null ? ` (${m.variation >= 0 ? '+' : ''}${m2(m.variation)} m sur 24 h)` : '') +
+        (m.debit != null ? `<br>Débit : <strong>${m2(m.debit)} m³/s</strong>` : '') +
+        `<br><small>${new Date(m.date).toLocaleString('fr-FR')} · ${m.source}</small>`
+      : 'Pas de mesure récente.';
+  } catch {
+    info = 'Mesure indisponible.';
+  }
+  popup.setContent(`<strong>${esc(st.nom)}</strong><br>${info}<br><a href="${lien}" target="_blank" rel="noopener">${st.vigicrues ? 'Voir sur Vigicrues' : 'HydroPortail'}</a>`);
+}
+
 const OVERLAYS = [
+  { group: 'Fonds', id: 'cadastre', label: 'Parcelles cadastrales', note: 'Visible à partir du zoom 15', layer: cadastre },
   { group: 'Débroussaillement', id: 'old', label: 'Zonage OLD', note: 'Zonage informatif IGN', layer: wms(IGN_WMS, 'DEBROUSSAILLEMENT', attribIGN), on: true },
   { group: 'Feux de forêt', id: 'supfeu', label: 'PPRIF (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_FEUP', attribGR) },
   { group: 'Feux de forêt', id: 'pprfeu', label: 'Communes avec PPRIF approuvé', layer: wms(GEORISQUES_WMS, 'PPRN_COMMUNE_FEU_APPROUV', attribGR) },
@@ -101,6 +156,10 @@ const OVERLAYS = [
   { group: 'Mouvements de terrain', id: 'argiles', label: 'Retrait-gonflement des argiles (RGA)', layer: wms(GEORISQUES_WMS, 'ALEARG', attribGR) },
   { group: 'Séisme et radon', id: 'seisme', label: 'Zonage sismique', layer: wms(GEORISQUES_WMS, 'risq_zonage_sismique', attribGR) },
   { group: 'Séisme et radon', id: 'radon', label: 'Potentiel radon', layer: wms(GEORISQUES_WMS, 'RADON', attribGR) },
+  { group: 'Crues en temps réel', id: 'vigicrues', label: 'Vigilance crues (Vigicrues)', note: 'Couleur du tronçon de cours d\'eau surveillé',
+    layer: wms('https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38174/8795eadb-cc82-424e-9e2a-48d296017d98.internet.map',
+      'Tronçons_SPCMET', '<a href="https://www.vigicrues.gouv.fr">Vigicrues</a>') },
+  { group: 'Crues en temps réel', id: 'stations', label: 'Stations de mesure', note: 'Hauteur et débit en direct (Vigicrues, Hub\'Eau)', layer: stationsLayer },
 ];
 
 // Panneau des couches
@@ -119,10 +178,15 @@ for (const o of OVERLAYS) {
     communesLayer && communesLayer.bringToFront();
   });
   list.appendChild(row);
+  o.checkbox = row.querySelector('input');
   if (o.on) o.layer.addTo(map);
 }
+function activer(id) {
+  const o = OVERLAYS.find(o => o.id === id);
+  if (!o.checkbox.checked) { o.checkbox.checked = true; o.layer.addTo(map); }
+}
 document.getElementById('opacity').addEventListener('input', e => {
-  OVERLAYS.forEach(o => o.layer.setOpacity(+e.target.value));
+  OVERLAYS.forEach(o => o.layer.setOpacity?.(+e.target.value));
 });
 
 // Glossaire
@@ -198,6 +262,40 @@ const categorie = libelle =>
   : /mouvement|glissement|effondrement|[ée]boulement|chute/i.test(libelle) ? 'mvt'
   : 'autre';
 
+// Sinistres : arrêtés CatNat (un même arrêté regroupe plusieurs communes) + incendies BDIFF
+function buildEvents(codes, catnats, bdiff) {
+  const events = [];
+  const catnatParEvt = new Map();
+  let catnatKo = 0;
+  catnats.forEach((c, i) => {
+    if (c.status !== 'fulfilled') return catnatKo++;
+    for (const a of c.value) {
+      const key = `${a.libelle_risque_jo}|${a.date_debut_evt}|${a.date_fin_evt}`;
+      let e = catnatParEvt.get(key);
+      if (!e) {
+        e = {
+          date: frDate(a.date_debut_evt), type: categorie(a.libelle_risque_jo), communes: [],
+          titre: `CatNat — ${a.libelle_risque_jo}`,
+          detail: `Du ${a.date_debut_evt} au ${a.date_fin_evt} · arrêté publié au JO le ${a.date_publication_jo}`,
+        };
+        catnatParEvt.set(key, e);
+        events.push(e);
+      }
+      e.communes.push(codes[i]);
+    }
+  });
+  for (const f of (bdiff?.incendies || []).filter(f => codes.includes(f.code_insee))) {
+    const date = new Date(f.date);
+    const surface = f.surface_ha != null ? `${fmtSurface(+f.surface_ha)} parcourus` : 'surface non renseignée';
+    events.push({
+      date, type: 'feu', communes: [f.code_insee], surface: +f.surface_ha || 0,
+      titre: 'Incendie de forêt (BDIFF)',
+      detail: [`Le ${fmtDate(date)}`, surface, f.nature && `cause : ${f.nature.toLowerCase()}`].filter(Boolean).join(' · '),
+    });
+  }
+  return { events, catnatKo };
+}
+
 async function renderFiche(codes) {
   const fiche = document.getElementById('fiche');
   const global = codes.length > 1;
@@ -235,38 +333,9 @@ async function renderFiche(codes) {
   if (risquesKo) html += `<p class="error">Données indisponibles pour ${risquesKo === codes.length ? 'le moment' : `${risquesKo} commune(s)`}.</p>`;
   else if (!risques.size) html += '<p>Aucun risque recensé.</p>';
 
-  // Sinistres par année : arrêtés CatNat (un même arrêté regroupe plusieurs communes) + incendies BDIFF
+  // Sinistres par année
   html += '<h3>Sinistres connus par année</h3>';
-  const events = [];
-  const catnatParEvt = new Map();
-  let catnatKo = 0;
-  results.forEach(([, c], i) => {
-    if (c.status !== 'fulfilled') return catnatKo++;
-    for (const a of c.value) {
-      const key = `${a.libelle_risque_jo}|${a.date_debut_evt}|${a.date_fin_evt}`;
-      let e = catnatParEvt.get(key);
-      if (!e) {
-        e = {
-          date: frDate(a.date_debut_evt), type: categorie(a.libelle_risque_jo), communes: [],
-          titre: `CatNat — ${a.libelle_risque_jo}`,
-          detail: `Du ${a.date_debut_evt} au ${a.date_fin_evt} · arrêté publié au JO le ${a.date_publication_jo}`,
-        };
-        catnatParEvt.set(key, e);
-        events.push(e);
-      }
-      e.communes.push(codes[i]);
-    }
-  });
-  for (const f of (bdiff?.incendies || []).filter(f => codes.includes(f.code_insee))) {
-    const date = new Date(f.date);
-    const surface = f.surface_ha != null ? `${fmtSurface(+f.surface_ha)} parcourus` : 'surface non renseignée';
-    events.push({
-      date, type: 'feu', communes: [f.code_insee], surface: +f.surface_ha || 0,
-      titre: 'Incendie de forêt (BDIFF)',
-      detail: [`Le ${fmtDate(date)}`, surface, f.nature && `cause : ${f.nature.toLowerCase()}`].filter(Boolean).join(' · '),
-    });
-  }
-
+  const { events, catnatKo } = buildEvents(codes, results.map(([, c]) => c), bdiff);
   if (events.length) {
     html += `<div class="legend"><span><i style="background:#d9480f"></i>Feux</span><span><i style="background:#1c7ed6"></i>Inondation</span>` +
       `<span><i style="background:#c49a00"></i>Sécheresse</span><span><i style="background:#8d6e63"></i>Mouvement de terrain</span></div>`;
@@ -290,9 +359,135 @@ async function renderFiche(codes) {
     ? `<p class="hint">Incendies de forêt : BDIFF, années disponibles ${esc(bdiff.periode)} (extrait du ${esc(bdiff.extrait_le)}).</p>`
     : '<p class="hint">Les incendies de forêt BDIFF seront ajoutés prochainement.</p>';
 
+  if (!global) {
+    const c = COMMUNES.find(c => c.code === codes[0]);
+    const dicrim = await getJSON(`${GEORISQUES_API}/gaspar/dicrim?code_insee=${c.code}`).then(j => j.data?.[0]?.annee_publication).catch(() => undefined);
+    html += '<h3>Infos pratiques</h3><ul>';
+    html += `<li>DICRIM : ${dicrim ? `publié en ${esc(dicrim)}, disponible en mairie ou sur le site de la commune` : dicrim === undefined ? 'information indisponible' : 'aucun DICRIM recensé'}.</li>`;
+    html += `<li><a href="https://www.geoportail-urbanisme.gouv.fr/map/#tile=1&lon=${c.centre[1]}&lat=${c.centre[0]}&zoom=13" target="_blank" rel="noopener">PLU sur le Géoportail de l'urbanisme</a></li>`;
+    html += '</ul>';
+  }
   html += `<p><a href="https://www.georisques.gouv.fr/mes-risques/connaitre-les-risques-pres-de-chez-moi" target="_blank" rel="noopener">Rapport détaillé à une adresse sur Géorisques</a></p>`;
+  if ((current || '') !== (global ? '' : codes[0])) return;
   fiche.innerHTML = html;
   annotate(fiche);
+}
+
+// Sinistres sur la carte : pastilles par commune et par type, filtrées par la frise
+const EVT_TYPES = {
+  feu: { label: 'Feux de forêt', color: '#d9480f', decalage: -0.012 },
+  inond: { label: 'Inondations / coulées de boue', color: '#1c7ed6', decalage: 0.012 },
+};
+const evtLayer = L.layerGroup();
+const evtState = { types: new Set(Object.keys(EVT_TYPES)), parCommune: null, de: 0, a: 0 };
+
+async function initSinistres() {
+  const [results, bdiff] = await Promise.all([Promise.all(ALL_CODES.map(loadCommune)), incendiesPromise]);
+  evtState.parCommune = ALL_CODES.map((code, i) => ({ code, events: buildEvents([code], [results[i][1]], bdiff).events.filter(e => EVT_TYPES[e.type]) }));
+  const annees = evtState.parCommune.flatMap(c => c.events.map(e => e.date.getFullYear()));
+  if (!annees.length) {
+    document.getElementById('frise').innerHTML = '<p class="hint">Aucun sinistre disponible.</p>';
+    return;
+  }
+  const min = Math.min(...annees), max = Math.max(new Date().getFullYear(), ...annees);
+  Object.assign(evtState, { min, max, de: min, a: max });
+  for (const id of ['annee-de', 'annee-a']) {
+    const input = document.getElementById(id);
+    Object.assign(input, { min, max, value: id === 'annee-de' ? min : max });
+    input.addEventListener('input', () => {
+      const de = +document.getElementById('annee-de').value, a = +document.getElementById('annee-a').value;
+      Object.assign(evtState, { de: Math.min(de, a), a: Math.max(de, a) });
+      renderSinistres();
+    });
+  }
+  renderSinistres();
+}
+
+function renderSinistres() {
+  const { types, de, a, min, max } = evtState;
+  if (!evtState.parCommune) return;
+  const dansPeriode = e => types.has(e.type) && e.date.getFullYear() >= de && e.date.getFullYear() <= a;
+
+  // Frise : barres empilées par année
+  const parAnnee = {};
+  for (const c of evtState.parCommune) for (const e of c.events) if (types.has(e.type)) {
+    const y = e.date.getFullYear();
+    (parAnnee[y] ??= { feu: 0, inond: 0 })[e.type]++;
+  }
+  const pic = Math.max(1, ...Object.values(parAnnee).map(v => v.feu + v.inond));
+  let barres = '';
+  for (let y = min; y <= max; y++) {
+    const v = parAnnee[y] || { feu: 0, inond: 0 };
+    const seg = t => v[t] ? `<i style="height:${(v[t] / pic) * 100}%;background:${EVT_TYPES[t].color}"></i>` : '';
+    barres += `<div class="bar${y < de || y > a ? ' off' : ''}" title="${y} : ${v.feu} feu(x), ${v.inond} inondation(s)">${seg('inond')}${seg('feu')}</div>`;
+  }
+  document.getElementById('frise-barres').innerHTML = barres;
+  document.getElementById('frise-label').textContent = de === a ? `${de}` : `${de} – ${a}`;
+
+  // Pastilles
+  evtLayer.clearLayers();
+  for (const c of evtState.parCommune) {
+    const commune = COMMUNES.find(x => x.code === c.code);
+    for (const [type, t] of Object.entries(EVT_TYPES)) {
+      const evts = c.events.filter(e => e.type === type && dansPeriode(e)).sort((x, y) => y.date - x.date);
+      if (!evts.length) continue;
+      const size = Math.round(22 + Math.min(18, Math.sqrt(evts.length) * 5));
+      const icon = L.divIcon({
+        className: '', iconSize: [size, size],
+        html: `<div class="evt-pin" style="background:${t.color};width:${size}px;height:${size}px">${evts.length}</div>`,
+      });
+      L.marker([commune.centre[0], commune.centre[1] + t.decalage], { icon, title: `${commune.nom} – ${t.label}` })
+        .bindPopup(`<strong>${esc(commune.nom)} — ${t.label}</strong><br><small>${de === a ? de : `${de}–${a}`} · ${evts.length} événement(s)</small>` +
+          `<ul class="popup-list">${evts.map(e => `<li>${esc(e.titre)}<br><small>${esc(e.detail)}</small></li>`).join('')}</ul>`, { maxHeight: 260 })
+        .addTo(evtLayer);
+    }
+  }
+}
+
+document.getElementById('evt-afficher').addEventListener('change', e => {
+  e.target.checked ? evtLayer.addTo(map) : map.removeLayer(evtLayer);
+  document.getElementById('frise').hidden = !e.target.checked;
+});
+document.querySelectorAll('[data-evt-type]').forEach(input => input.addEventListener('change', () => {
+  input.checked ? evtState.types.add(input.dataset.evtType) : evtState.types.delete(input.dataset.evtType);
+  renderSinistres();
+}));
+evtLayer.addTo(map);
+initSinistres();
+
+// Recherche d'adresse (Géoplateforme IGN), limitée aux 9 communes
+let adresseMarker = null;
+const resultats = document.getElementById('adresse-resultats');
+let rechercheTimer;
+document.getElementById('adresse').addEventListener('input', e => {
+  clearTimeout(rechercheTimer);
+  const q = e.target.value.trim();
+  if (q.length < 4) { resultats.innerHTML = ''; return; }
+  rechercheTimer = setTimeout(async () => {
+    try {
+      const j = await getJSON(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(q)}&limit=15&lat=43.62&lon=6.72`);
+      const ok = j.features.filter(f => ALL_CODES.includes(f.properties.citycode)).slice(0, 6);
+      resultats.innerHTML = ok.length
+        ? ok.map((f, i) => `<li><button type="button" data-i="${i}">${esc(f.properties.label)}</button></li>`).join('')
+        : '<li class="hint">Aucune adresse trouvée dans le Pays de Fayence.</li>';
+      resultats.querySelectorAll('button').forEach(b => b.addEventListener('click', () => allerA(ok[+b.dataset.i])));
+    } catch {
+      resultats.innerHTML = '<li class="error">Recherche indisponible.</li>';
+    }
+  }, 300);
+});
+
+function allerA(f) {
+  const [lon, lat] = f.geometry.coordinates;
+  resultats.innerHTML = '';
+  document.getElementById('adresse').value = f.properties.label;
+  selectCommune(f.properties.citycode);
+  activer('cadastre');
+  adresseMarker?.remove();
+  adresseMarker = L.marker([lat, lon]).addTo(map)
+    .bindPopup(`<strong>${esc(f.properties.label)}</strong><br><small>Activez les couches OLD, inondation… pour voir les zones qui concernent cette adresse.</small>`)
+    .openPopup();
+  map.setView([lat, lon], 17);
 }
 
 const initial = new URLSearchParams(location.search).get('commune');

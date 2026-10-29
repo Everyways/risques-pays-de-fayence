@@ -9,6 +9,10 @@ Bagnols-en-Forêt, Callian, Fayence, Mons, Montauroux, Saint-Paul-en-Forêt, Sei
 - **Autres risques** : mouvements de terrain, cavités, retrait-gonflement des argiles, zonage sismique, radon (Géorisques WMS).
 - **Fiche commune / vue globale** : tous les risques recensés (avec sous-types) et sinistres connus par année :
   arrêtés CatNat (API Géorisques v1, en direct) et incendies de forêt BDIFF (`data/incendies.json`).
+- **Sinistres sur la carte** : pastilles par commune (feux, inondations / coulées de boue) avec frise annuelle pour filtrer la période.
+- **Recherche d'adresse** (géocodage IGN) avec parcelles cadastrales.
+- **Crues en temps réel** : vigilance Vigicrues (tronçons PACA) et stations de mesure (API Vigicrues, Hub'Eau).
+- **Infos pratiques** : DICRIM, PLU, numéros d'urgence, bons réflexes, liens danger feux (préfecture du Var, Météo des forêts, feuxdeforet.fr).
 - **Glossaire** des sigles (OLD, PPR, PPRIF, EAIP…), avec infobulle sur chaque sigle.
 
 ## Données BDIFF

@@ -65,3 +65,21 @@ h3 { font-size: .95rem; margin: 16px 0 6px; }
 .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: middle; }
 #glossaire dt { font-weight: 700; margin-top: 8px; }
 #glossaire dd { margin: 0 0 0 0; color: var(--muted); font-size: .9rem; }
+input[type=search] { width: 100%; padding: 8px; font: inherit; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
+#adresse-resultats { list-style: none; padding: 0; margin: 4px 0 12px; }
+#adresse-resultats button { width: 100%; text-align: left; padding: 6px 8px; font: inherit; background: none; color: var(--text); border: 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+#adresse-resultats button:hover { background: var(--accent-soft); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.evt-types { margin-left: 8px; }
+.frise-head { font-size: .9rem; margin: 10px 0 4px; }
+#frise-barres { display: flex; align-items: flex-end; gap: 1px; height: 60px; border-bottom: 1px solid var(--border); }
+#frise-barres .bar { flex: 1; height: 100%; display: flex; flex-direction: column-reverse; }
+#frise-barres .bar i { display: block; width: 100%; }
+#frise-barres .bar.off { opacity: .25; }
+.range { font-weight: 400; display: flex; gap: 8px; align-items: center; font-size: .85rem; }
+.range input { flex: 1; }
+.evt-pin { border-radius: 50%; color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.popup-list { padding-left: 16px; margin: 6px 0 0; font-size: .8rem; }
+details { margin: 6px 0; }
+summary { cursor: pointer; font-weight: 600; }
+#infos ul { padding-left: 18px; }

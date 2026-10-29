@@ -15,6 +15,10 @@
 </header>
 <main>
   <aside id="panel">
+    <label for="adresse">Rechercher une adresse</label>
+    <input id="adresse" type="search" placeholder="ex. place de la République, Fayence" autocomplete="off">
+    <ul id="adresse-resultats"></ul>
+
     <label for="commune">Commune</label>
     <select id="commune"><option value="">Toutes les communes</option></select>
 
@@ -22,6 +26,22 @@
       <h2>Couches</h2>
       <div id="layer-list"></div>
       <label class="opacity">Opacité <input type="range" id="opacity" min="0.2" max="1" step="0.1" value="0.7"></label>
+    </section>
+
+    <section id="sinistres">
+      <h2>Sinistres sur la carte</h2>
+      <label class="layer"><input type="checkbox" id="evt-afficher" checked><span>Afficher les pastilles<small>Nombre d'événements par commune (position indicative : centre de la commune)</small></span></label>
+      <div class="evt-types">
+        <label class="layer"><input type="checkbox" data-evt-type="feu" checked><span><i class="dot" style="background:#d9480f"></i>Feux de forêt</span></label>
+        <label class="layer"><input type="checkbox" data-evt-type="inond" checked><span><i class="dot" style="background:#1c7ed6"></i>Inondations / coulées de boue</span></label>
+      </div>
+      <div id="frise">
+        <div class="frise-head">Période <strong id="frise-label"></strong></div>
+        <div id="frise-barres"></div>
+        <label class="range">De <input type="range" id="annee-de"></label>
+        <label class="range">À <input type="range" id="annee-a"></label>
+      </div>
+      <p class="hint">Sources : arrêtés CatNat (Géorisques) et incendies BDIFF.</p>
     </section>
 
     <section id="fiche">
@@ -39,13 +59,50 @@
       <p><a href="https://www.georisques.gouv.fr/me-preparer-me-proteger/OLD-obligations-legales-de-debroussaillement" target="_blank" rel="noopener">En savoir plus sur Géorisques</a></p>
     </section>
 
+    <section id="infos">
+      <h2>En cas d'urgence</h2>
+      <ul>
+        <li><strong>18</strong> pompiers · <strong>15</strong> SAMU · <strong>17</strong> police · <strong>112</strong> numéro d'urgence européen · <strong>114</strong> par SMS (personnes sourdes ou malentendantes)</li>
+      </ul>
+      <details>
+        <summary>Feu de forêt : les bons réflexes</summary>
+        <ul>
+          <li>Appelez le 18 ou le 112 en localisant précisément le feu.</li>
+          <li>Ne sortez pas : une maison débroussaillée est le meilleur abri. Fermez volets, portes et fenêtres, arrosez les abords si possible.</li>
+          <li>Ne prenez pas la route dans la fumée, n'encombrez pas les accès des secours.</li>
+          <li>Suivez les consignes des autorités (radio locale, réseaux de la préfecture).</li>
+        </ul>
+      </details>
+      <details>
+        <summary>Inondation : les bons réflexes</summary>
+        <ul>
+          <li>Ne vous engagez jamais à pied ou en voiture sur une route inondée.</li>
+          <li>Montez à l'étage, n'allez pas chercher vos enfants à l'école (ils sont pris en charge).</li>
+          <li>Coupez électricité et gaz si l'eau menace, restez informé (Vigicrues, Météo-France).</li>
+        </ul>
+      </details>
+      <h2>Danger feux de forêt</h2>
+      <ul>
+        <li><a href="https://www.risque-prevention-incendie.fr/var/" target="_blank" rel="noopener">Carte quotidienne d'accès aux massifs du Var</a> (en été)</li>
+        <li><a href="https://www.var.gouv.fr/Actions-de-l-Etat/Foret/Fermeture-des-massifs-en-ete/Carte-d-acces-aux-massifs" target="_blank" rel="noopener">Réglementation d'accès aux massifs (préfecture du Var)</a></li>
+        <li><a href="https://meteofrance.com/meteo-des-forets" target="_blank" rel="noopener">Météo des forêts (Météo-France)</a></li>
+        <li><a href="https://feuxdeforet.fr/cartes/feux/" target="_blank" rel="noopener">Feux en cours (feuxdeforet.fr)</a> · <a href="https://feuxdeforet.fr/cartes/vigilance/" target="_blank" rel="noopener">vigilance du jour</a> · <a href="https://feuxdeforet.fr/provence-alpes-cote-dazur/var/" target="_blank" rel="noopener">page Var</a></li>
+        <li><a href="https://feuxdeforet.fr/signaler/" target="_blank" rel="noopener">Signaler un départ de feu (feuxdeforet.fr)</a> — en urgence, appelez d'abord le 18 ou le 112</li>
+      </ul>
+      <h2>Crues</h2>
+      <ul>
+        <li><a href="https://www.vigicrues.gouv.fr/station/Y551404001" target="_blank" rel="noopener">La Siagne à Callian (Vigicrues)</a> : hauteur et débit en direct</li>
+        <li><a href="https://www.vigicrues.gouv.fr/territoire/22" target="_blank" rel="noopener">Vigilance crues Méditerranée Est (Vigicrues)</a></li>
+      </ul>
+    </section>
+
     <section id="glossaire">
       <h2>Glossaire</h2>
       <dl id="glossaire-list"></dl>
     </section>
 
     <footer>
-      <p>Sources : <a href="https://www.georisques.gouv.fr" target="_blank" rel="noopener">Géorisques</a> (MTE/BRGM), <a href="https://www.data.gouv.fr/datasets/debroussaillement" target="_blank" rel="noopener">IGN – DÉBROUSSAILLEMENT</a> (zonage informatif), <a href="https://bdiff.agriculture.gouv.fr" target="_blank" rel="noopener">BDIFF</a> (incendies de forêt), <a href="https://geo.api.gouv.fr" target="_blank" rel="noopener">API Découpage administratif</a>.</p>
+      <p>Sources : <a href="https://www.georisques.gouv.fr" target="_blank" rel="noopener">Géorisques</a> (MTE/BRGM), <a href="https://www.data.gouv.fr/datasets/debroussaillement" target="_blank" rel="noopener">IGN – DÉBROUSSAILLEMENT</a> (zonage informatif), <a href="https://bdiff.agriculture.gouv.fr" target="_blank" rel="noopener">BDIFF</a> (incendies de forêt), <a href="https://www.vigicrues.gouv.fr" target="_blank" rel="noopener">Vigicrues</a>, <a href="https://hubeau.eaufrance.fr" target="_blank" rel="noopener">Hub'Eau</a>, <a href="https://geo.api.gouv.fr" target="_blank" rel="noopener">API Découpage administratif</a>, géocodage et cadastre IGN.</p>
       <p>Information indicative, sans valeur réglementaire. Seuls les documents officiels (arrêtés, PPR, PLU) font foi.</p>
     </footer>
   </aside>
