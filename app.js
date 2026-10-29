@@ -28,14 +28,17 @@ const fmtSurface = ha => ha >= 1 ? `${ha.toLocaleString('fr-FR', { maximumFracti
 const GLOSSAIRE = {
   AZI: "Atlas des zones inondables : cartographie informative des zones inondées ou inondables.",
   BDIFF: "Base de données sur les incendies de forêt en France (ministère de l'Agriculture), recense les feux depuis 2006.",
+  BASOL: "Base des sites et sols pollués appelant une action des pouvoirs publics.",
   BRGM: "Bureau de recherches géologiques et minières, opérateur de Géorisques.",
   CatNat: "Catastrophe naturelle : état reconnu par arrêté interministériel publié au Journal officiel, ouvrant droit à indemnisation par les assurances.",
   DDRM: "Dossier départemental sur les risques majeurs, établi par le préfet.",
   DFCI: "Défense des forêts contre l'incendie : pistes, points d'eau et aménagements de lutte.",
   DICRIM: "Document d'information communal sur les risques majeurs, établi par le maire.",
   EAIP: "Enveloppe approchée des inondations potentielles : zone maximale qui pourrait être inondée par débordement de cours d'eau ou submersion.",
+  EFFIS: "European Forest Fire Information System (Copernicus) : contours des surfaces brûlées détectées par satellite.",
   GASPAR: "Gestion assistée des procédures administratives relatives aux risques : base nationale des risques, PPR et arrêtés CatNat par commune.",
   IAL: "Information acquéreurs-locataires : état des risques obligatoire à joindre à toute vente ou location.",
+  ICPE: "Installation classée pour la protection de l'environnement : usine ou activité pouvant présenter des dangers ou nuisances.",
   IGN: "Institut national de l'information géographique et forestière.",
   INSEE: "Institut national de la statistique ; le code INSEE identifie chaque commune.",
   JO: "Journal officiel de la République française.",
@@ -48,6 +51,7 @@ const GLOSSAIRE = {
   PPRMT: "Plan de prévention des risques mouvements de terrain.",
   PPRN: "Plan de prévention des risques naturels (inondation, feux, mouvements de terrain, séisme…).",
   RGA: "Retrait-gonflement des argiles : sols argileux qui se rétractent en sécheresse et gonflent à l'humidité, fissurant les bâtiments.",
+  SIS: "Secteur d'information sur les sols : terrain où une pollution des sols est connue.",
   SUP: "Servitude d'utilité publique : contrainte d'urbanisme annexée au PLU (un PPR approuvé vaut SUP).",
   TRI: "Territoire à risque important d'inondation (directive inondation).",
 };
@@ -141,21 +145,78 @@ async function hauteurStation(st, popup) {
   popup.setContent(`<strong>${esc(st.nom)}</strong><br>${info}<br><a href="${lien}" target="_blank" rel="noopener">${st.vigicrues ? 'Voir sur Vigicrues' : 'HydroPortail'}</a>`);
 }
 
+const attribEFFIS = '<a href="https://forest-fire.emergency.copernicus.eu">EFFIS</a>';
+const effis = L.tileLayer.wms('https://maps.effis.emergency.copernicus.eu/effis', {
+  layers: Array.from({ length: 10 }, (_, i) => `modis.ba.poly.${2016 + i}`).concat('modis.ba.poly.season').join(','),
+  format: 'image/png', transparent: true, version: '1.1.1', opacity: 0.7, attribution: attribEFFIS,
+});
+const OPENDFCI_WMS = 'https://opendfci.fr/map/index.php/lizmap/service/?repository=public&project=0_dfci_public';
+const attribDFCI = '<a href="https://opendfci.fr">OPEN DFCI</a>';
+
+// Établissements sensibles (OpenStreetMap via Overpass), chargés à la première activation
+const SENSIBLES = {
+  ecole: { label: 'École', color: '#7048e8' },
+  creche: { label: 'Crèche', color: '#ae3ec9' },
+  sante: { label: 'Hôpital / clinique', color: '#e03131' },
+  ehpad: { label: 'Maison de retraite', color: '#f08c00' },
+};
+const sensiblesLayer = L.layerGroup();
+let sensiblesCharges = false;
+sensiblesLayer.on('add', async () => {
+  if (sensiblesCharges) return;
+  sensiblesCharges = true;
+  const bbox = '43.48,6.55,43.76,6.92';
+  const q = `[out:json][timeout:25];(nwr["amenity"~"^(school|kindergarten|childcare|hospital|clinic)$"](${bbox});` +
+    `nwr["social_facility"="nursing_home"](${bbox});nwr["amenity"="nursing_home"](${bbox}););out center tags;`;
+  try {
+    // Les serveurs Overpass sont parfois saturés : on essaie plusieurs instances
+    let j;
+    for (const srv of ['https://overpass-api.de', 'https://overpass.kumi.systems', 'https://overpass.private.coffee']) {
+      j = await getJSON(`${srv}/api/interpreter?data=${encodeURIComponent(q)}`).catch(() => null);
+      if (j) break;
+    }
+    if (!j) throw new Error('Overpass indisponible');
+    for (const el of j.elements) {
+      const t = el.tags || {};
+      const type = t.amenity === 'school' ? 'ecole'
+        : ['kindergarten', 'childcare'].includes(t.amenity) ? 'creche'
+        : ['hospital', 'clinic'].includes(t.amenity) ? 'sante' : 'ehpad';
+      const pos = el.type === 'node' ? [el.lat, el.lon] : el.center && [el.center.lat, el.center.lon];
+      if (!pos) continue;
+      L.circleMarker(pos, { radius: 6, color: '#fff', weight: 2, fillColor: SENSIBLES[type].color, fillOpacity: 1 })
+        .bindPopup(`<strong>${esc(t.name || SENSIBLES[type].label)}</strong><br><small>${SENSIBLES[type].label} · OpenStreetMap</small>`)
+        .addTo(sensiblesLayer);
+    }
+  } catch {
+    sensiblesCharges = false;
+    alert('Établissements sensibles indisponibles pour le moment (OpenStreetMap / Overpass).');
+  }
+});
+
 const OVERLAYS = [
   { group: 'Fonds', id: 'cadastre', label: 'Parcelles cadastrales', note: 'Visible à partir du zoom 15', layer: cadastre },
   { group: 'Débroussaillement', id: 'old', label: 'Zonage OLD', note: 'Zonage informatif IGN', layer: wms(IGN_WMS, 'DEBROUSSAILLEMENT', attribIGN) },
-  { group: 'Feux de forêt', id: 'supfeu', label: 'PPRIF (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_FEUP', attribGR) },
+  { group: 'Feux de forêt', id: 'supfeu', label: 'PPRIF (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_FEU', attribGR) },
+  { group: 'Feux de forêt', id: 'brule', label: 'Surfaces brûlées 2016 – aujourd\'hui', note: 'Satellite EFFIS, feux d\'environ 30 ha et plus', layer: effis },
+  { group: 'Feux de forêt', id: 'foret', label: 'Forêt et végétation (BD Forêt)', note: 'Type de peuplement forestier, IGN', layer: wms(IGN_WMS, 'LANDCOVER.FORESTINVENTORY.V2', attribIGN) },
+  { group: 'Feux de forêt', id: 'dfci', label: 'Équipements DFCI', note: 'Pistes, points d\'eau, vigies (OPEN DFCI)',
+    layer: wms(OPENDFCI_WMS, 'TRO_2017_Troncons_de_voies_categorisees_DFCI,EAU_2017_Bassins_ou_retenues_citernes_points_d_eau_naturel_DFCI,VIG_2017_Vigies_DFCI', attribDFCI) },
   { group: 'Feux de forêt', id: 'pprfeu', label: 'Communes avec PPRIF approuvé', layer: wms(GEORISQUES_WMS, 'PPRN_COMMUNE_FEU_APPROUV', attribGR) },
-  { group: 'Inondation', id: 'supinond', label: 'PPRI (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_INONDP', attribGR) },
+  { group: 'Inondation', id: 'supinond', label: 'PPRI (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_INOND', attribGR) },
   { group: 'Inondation', id: 'eaip', label: 'Enveloppes inondations potentielles (EAIP)', layer: wms(GEORISQUES_WMS, 'MASQ_EAIP', attribGR) },
   { group: 'Inondation', id: 'nappe', label: 'Remontées de nappes', layer: wms(GEORISQUES_WMS, 'REMNAPPE_FR', attribGR) },
   { group: 'Inondation', id: 'pprinond', label: 'Communes avec PPRI approuvé', layer: wms(GEORISQUES_WMS, 'PPRN_COMMUNE_RISQINOND_APPROUV', attribGR) },
-  { group: 'Mouvements de terrain', id: 'mvt', label: 'Mouvements de terrain recensés', layer: wms(GEORISQUES_WMS, 'MVT_LOCALISEE', attribGR) },
+  { group: 'Mouvements de terrain', id: 'mvt', label: 'Mouvements de terrain recensés', layer: wms(GEORISQUES_WMS, 'MVT_LOCALISE', attribGR) },
   { group: 'Mouvements de terrain', id: 'cavite', label: 'Cavités souterraines', layer: wms(GEORISQUES_WMS, 'CAVITE_LOCALISEE', attribGR) },
   { group: 'Mouvements de terrain', id: 'supmvt', label: 'PPRMT (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_MVT_TERRAIN', attribGR) },
   { group: 'Mouvements de terrain', id: 'argiles', label: 'Retrait-gonflement des argiles (RGA)', layer: wms(GEORISQUES_WMS, 'ALEARG', attribGR) },
   { group: 'Séisme et radon', id: 'seisme', label: 'Zonage sismique', layer: wms(GEORISQUES_WMS, 'risq_zonage_sismique', attribGR) },
   { group: 'Séisme et radon', id: 'radon', label: 'Potentiel radon', layer: wms(GEORISQUES_WMS, 'RADON', attribGR) },
+  { group: 'Risques technologiques', id: 'gaz', label: 'Canalisations de gaz', layer: wms(GEORISQUES_WMS, 'C_GAZ', attribGR) },
+  { group: 'Risques technologiques', id: 'icpe', label: 'Installations classées (ICPE)', note: 'Soumises à autorisation ou Seveso', layer: wms(GEORISQUES_WMS, 'INSTALLATIONS_CLASSEES_SIMPLIFIE', attribGR) },
+  { group: 'Risques technologiques', id: 'sols', label: 'Sols pollués', note: 'SIS, sites BASOL, anciens sites industriels',
+    layer: wms(GEORISQUES_WMS, 'SSP_CLASSIFICATION_SIS,SSP_INSTRUCTION,SSP_ETABLISSEMENT', attribGR) },
+  { group: 'Enjeux', id: 'sensibles', label: 'Établissements sensibles', note: 'Écoles, crèches, santé, maisons de retraite (OpenStreetMap)', layer: sensiblesLayer },
   { group: 'Crues en temps réel', id: 'vigicrues', label: 'Vigilance crues (Vigicrues)', note: 'Couleur du tronçon de cours d\'eau surveillé',
     layer: wms('https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/carto/geoide-catalogue/1.4/org_38174/8795eadb-cc82-424e-9e2a-48d296017d98.internet.map',
       'Troncons_SPCME', '<a href="https://www.vigicrues.gouv.fr">Vigicrues</a>') },

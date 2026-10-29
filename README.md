@@ -9,6 +9,9 @@ Bagnols-en-Forêt, Callian, Fayence, Mons, Montauroux, Saint-Paul-en-Forêt, Sei
 - **Autres risques** : mouvements de terrain, cavités, retrait-gonflement des argiles, zonage sismique, radon (Géorisques WMS).
 - **Fiche commune / vue globale** : tous les risques recensés (avec sous-types) et sinistres connus par année :
   arrêtés CatNat (API Géorisques v1, en direct) et incendies de forêt BDIFF (`data/incendies.json`).
+- **Feux** : surfaces brûlées par satellite (EFFIS, 2016 à aujourd'hui), forêt et végétation (BD Forêt IGN), équipements DFCI (OPEN DFCI).
+- **Risques technologiques** : canalisations de gaz, installations classées, sols pollués (Géorisques).
+- **Enjeux** : établissements sensibles (écoles, crèches, santé, maisons de retraite) depuis OpenStreetMap.
 - **Sinistres sur la carte** : pastilles par commune (feux, inondations / coulées de boue) avec frise annuelle pour filtrer la période.
 - **Recherche d'adresse** (géocodage IGN) avec parcelles cadastrales.
 - **Crues en temps réel** : vigilance Vigicrues (tronçons PACA) et stations de mesure (API Vigicrues, Hub'Eau).
