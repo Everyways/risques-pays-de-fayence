@@ -143,7 +143,7 @@ async function hauteurStation(st, popup) {
 
 const OVERLAYS = [
   { group: 'Fonds', id: 'cadastre', label: 'Parcelles cadastrales', note: 'Visible à partir du zoom 15', layer: cadastre },
-  { group: 'Débroussaillement', id: 'old', label: 'Zonage OLD', note: 'Zonage informatif IGN', layer: wms(IGN_WMS, 'DEBROUSSAILLEMENT', attribIGN), on: true },
+  { group: 'Débroussaillement', id: 'old', label: 'Zonage OLD', note: 'Zonage informatif IGN', layer: wms(IGN_WMS, 'DEBROUSSAILLEMENT', attribIGN) },
   { group: 'Feux de forêt', id: 'supfeu', label: 'PPRIF (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_FEUP', attribGR) },
   { group: 'Feux de forêt', id: 'pprfeu', label: 'Communes avec PPRIF approuvé', layer: wms(GEORISQUES_WMS, 'PPRN_COMMUNE_FEU_APPROUV', attribGR) },
   { group: 'Inondation', id: 'supinond', label: 'PPRI (SUP)', note: 'Périmètres réglementaires', layer: wms(GEORISQUES_WMS, 'SUP_INONDP', attribGR) },
@@ -209,7 +209,7 @@ fetch(`https://geo.api.gouv.fr/communes?codeEpci=${EPCI}&format=geojson&geometry
       onEachFeature: (f, layer) => {
         byCode[f.properties.code] = layer;
         layer.bindTooltip(f.properties.nom, { permanent: true, direction: 'center', className: 'commune-label' });
-        layer.on('click', () => selectCommune(f.properties.code));
+        layer.on('click', () => selectCommune(f.properties.code, { zoom: false }));
       },
     }).addTo(map);
     if (current && byCode[current]) {
@@ -226,7 +226,7 @@ const select = document.getElementById('commune');
 COMMUNES.forEach(c => select.insertAdjacentHTML('beforeend', `<option value="${c.code}">${c.nom}</option>`));
 select.addEventListener('change', () => selectCommune(select.value));
 
-function selectCommune(code) {
+function selectCommune(code, { zoom = true } = {}) {
   if (current && byCode[current]) byCode[current].setStyle(style(false));
   current = code || null;
   select.value = code || '';
@@ -236,8 +236,8 @@ function selectCommune(code) {
 
   if (code && byCode[code]) {
     byCode[code].setStyle(style(true)).bringToFront();
-    map.fitBounds(byCode[code].getBounds(), { padding: [20, 20] });
-  } else if (!code && communesLayer) {
+    if (zoom) map.fitBounds(byCode[code].getBounds(), { padding: [20, 20] });
+  } else if (!code && communesLayer && zoom) {
     map.fitBounds(communesLayer.getBounds());
   }
   renderFiche(code ? [code] : ALL_CODES);
@@ -452,7 +452,6 @@ document.querySelectorAll('[data-evt-type]').forEach(input => input.addEventList
   input.checked ? evtState.types.add(input.dataset.evtType) : evtState.types.delete(input.dataset.evtType);
   renderSinistres();
 }));
-evtLayer.addTo(map);
 initSinistres();
 
 // Recherche d'adresse (Géoplateforme IGN), limitée aux 9 communes

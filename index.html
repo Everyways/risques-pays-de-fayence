@@ -6,7 +6,7 @@
 <title>Risques Pays de Fayence</title>
 <meta name="description" content="Carte des risques (obligations de débroussaillement, feux de forêt, inondation) pour les 9 communes du Pays de Fayence — données Géorisques et IGN.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <header>
@@ -30,12 +30,12 @@
 
     <section id="sinistres">
       <h2>Sinistres sur la carte</h2>
-      <label class="layer"><input type="checkbox" id="evt-afficher" checked><span>Afficher les pastilles<small>Nombre d'événements par commune (position indicative : centre de la commune)</small></span></label>
+      <label class="layer"><input type="checkbox" id="evt-afficher"><span>Afficher les pastilles<small>Nombre d'événements par commune (position indicative : centre de la commune)</small></span></label>
       <div class="evt-types">
         <label class="layer"><input type="checkbox" data-evt-type="feu" checked><span><i class="dot" style="background:#d9480f"></i>Feux de forêt</span></label>
         <label class="layer"><input type="checkbox" data-evt-type="inond" checked><span><i class="dot" style="background:#1c7ed6"></i>Inondations / coulées de boue</span></label>
       </div>
-      <div id="frise">
+      <div id="frise" hidden>
         <div class="frise-head">Période <strong id="frise-label"></strong></div>
         <div id="frise-barres"></div>
         <label class="range">De <input type="range" id="annee-de"></label>
@@ -109,6 +109,6 @@
   <div id="map"></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
