@@ -1,11 +1,279 @@
 {
  "source": "BDIFF – https://bdiff.agriculture.gouv.fr",
  "extrait_le": "29/10/2026",
- "periode": "2025",
+ "periode": "2020–2025",
  "annees": [
+  2020,
+  2021,
+  2022,
+  2023,
   2025
  ],
  "incendies": [
+  {
+   "annee": 2020,
+   "numero": "18831",
+   "code_insee": "83008",
+   "date": "2020-03-19",
+   "surface_ha": 0.01,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2020,
+   "numero": "12559",
+   "code_insee": "83055",
+   "date": "2020-04-07",
+   "surface_ha": 0.6,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2020,
+   "numero": "12830",
+   "code_insee": "83124",
+   "date": "2020-04-24",
+   "surface_ha": 0.15,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2020,
+   "numero": "16585",
+   "code_insee": "83138",
+   "date": "2020-08-31",
+   "surface_ha": 0.03,
+   "nature": "Naturelle"
+  },
+  {
+   "annee": 2021,
+   "numero": "6267",
+   "code_insee": "83124",
+   "date": "2021-06-30",
+   "surface_ha": 7.0,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2021,
+   "numero": "7467",
+   "code_insee": "83133",
+   "date": "2021-07-09",
+   "surface_ha": 0.0005,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2021,
+   "numero": "9252",
+   "code_insee": "83029",
+   "date": "2021-09-20",
+   "surface_ha": 0.0002,
+   "nature": "Naturelle"
+  },
+  {
+   "annee": 2022,
+   "numero": "14456",
+   "code_insee": "83008",
+   "date": "2022-03-02",
+   "surface_ha": 0.02,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2022,
+   "numero": "14508",
+   "code_insee": "83124",
+   "date": "2022-03-27",
+   "surface_ha": 177.17,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2022,
+   "numero": "14509",
+   "code_insee": "83133",
+   "date": "2022-03-28",
+   "surface_ha": 0.2,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2022,
+   "numero": "15939",
+   "code_insee": "83124",
+   "date": "2022-06-11",
+   "surface_ha": 15.0,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2022,
+   "numero": "16028",
+   "code_insee": "83081",
+   "date": "2022-06-14",
+   "surface_ha": 0.8,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2022,
+   "numero": "18656",
+   "code_insee": "83008",
+   "date": "2022-08-30",
+   "surface_ha": 0.02,
+   "nature": "Naturelle"
+  },
+  {
+   "annee": 2022,
+   "numero": "20446",
+   "code_insee": "83008",
+   "date": "2022-10-29",
+   "surface_ha": 0.0002,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21350",
+   "code_insee": "83055",
+   "date": "2023-01-12",
+   "surface_ha": 0.5,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21380",
+   "code_insee": "83080",
+   "date": "2023-01-30",
+   "surface_ha": 0.055,
+   "nature": "Malveillance"
+  },
+  {
+   "annee": 2023,
+   "numero": "21389",
+   "code_insee": "83124",
+   "date": "2023-02-02",
+   "surface_ha": 0.4,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21414",
+   "code_insee": "83138",
+   "date": "2023-02-19",
+   "surface_ha": 0.002,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21441",
+   "code_insee": "83138",
+   "date": "2023-03-10",
+   "surface_ha": 0.1,
+   "nature": null
+  },
+  {
+   "annee": 2023,
+   "numero": "21465",
+   "code_insee": "83124",
+   "date": "2023-03-23",
+   "surface_ha": 0.015,
+   "nature": "Malveillance"
+  },
+  {
+   "annee": 2023,
+   "numero": "21487",
+   "code_insee": "83081",
+   "date": "2023-04-03",
+   "surface_ha": 0.0002,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21548",
+   "code_insee": "83124",
+   "date": "2023-04-24",
+   "surface_ha": 0.4,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2023,
+   "numero": "21549",
+   "code_insee": "83124",
+   "date": "2023-04-24",
+   "surface_ha": 0.0001,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21560",
+   "code_insee": "83117",
+   "date": "2023-04-27",
+   "surface_ha": 2.8216,
+   "nature": "Malveillance"
+  },
+  {
+   "annee": 2023,
+   "numero": "21632",
+   "code_insee": "83055",
+   "date": "2023-06-26",
+   "surface_ha": 0.005,
+   "nature": null
+  },
+  {
+   "annee": 2023,
+   "numero": "21644",
+   "code_insee": "83081",
+   "date": "2023-07-04",
+   "surface_ha": 0.052,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2023,
+   "numero": "21665",
+   "code_insee": "83008",
+   "date": "2023-07-14",
+   "surface_ha": 0.005,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2023,
+   "numero": "21687",
+   "code_insee": "83081",
+   "date": "2023-07-25",
+   "surface_ha": 0.0005,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2023,
+   "numero": "21740",
+   "code_insee": "83008",
+   "date": "2023-08-07",
+   "surface_ha": 0.0378,
+   "nature": "Malveillance"
+  },
+  {
+   "annee": 2023,
+   "numero": "21742",
+   "code_insee": "83138",
+   "date": "2023-08-07",
+   "surface_ha": 0.03,
+   "nature": null
+  },
+  {
+   "annee": 2023,
+   "numero": "21763",
+   "code_insee": "83008",
+   "date": "2023-08-16",
+   "surface_ha": 0.02,
+   "nature": "Malveillance"
+  },
+  {
+   "annee": 2023,
+   "numero": "21792",
+   "code_insee": "83081",
+   "date": "2023-08-30",
+   "surface_ha": 0.1483,
+   "nature": null
+  },
+  {
+   "annee": 2023,
+   "numero": "21867",
+   "code_insee": "83124",
+   "date": "2023-11-25",
+   "surface_ha": 0.0025,
+   "nature": null
+  },
   {
    "annee": 2025,
    "numero": "8951",
