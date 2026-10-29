@@ -6,15 +6,19 @@
 <title>Risques Pays de Fayence</title>
 <meta name="description" content="Carte des risques (obligations de débroussaillement, feux de forêt, inondation) pour les 9 communes du Pays de Fayence — données Géorisques et IGN.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <header>
-  <h1>Risques — Pays de Fayence</h1>
-  <p>Débroussaillement (OLD), feux de forêt, inondation et autres risques · données Géorisques / IGN / BDIFF</p>
+  <div>
+    <h1>Risques — Pays de Fayence</h1>
+    <p>Débroussaillement (OLD), feux de forêt, inondation et autres risques · données Géorisques / IGN / BDIFF</p>
+  </div>
+  <button type="button" id="panel-toggle" aria-controls="panel" aria-expanded="false">Couches &amp; infos</button>
 </header>
 <main>
   <aside id="panel">
+    <button type="button" id="panel-close" aria-label="Fermer le panneau">Voir la carte</button>
     <label for="adresse">Rechercher une adresse</label>
     <input id="adresse" type="search" placeholder="ex. place de la République, Fayence" autocomplete="off">
     <ul id="adresse-resultats"></ul>
@@ -109,6 +113,6 @@
   <div id="map"></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

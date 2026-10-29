@@ -548,7 +548,20 @@ function allerA(f) {
     .bindPopup(`<strong>${esc(f.properties.label)}</strong><br><small>Activez les couches OLD, inondation… pour voir les zones qui concernent cette adresse.</small>`)
     .openPopup();
   map.setView([lat, lon], 17);
+  ouvrirPanneau(false);
 }
+
+// Mobile : le panneau s'affiche en volet par-dessus la carte
+const panel = document.getElementById('panel');
+const toggle = document.getElementById('panel-toggle');
+function ouvrirPanneau(ouvert) {
+  panel.classList.toggle('open', ouvert);
+  toggle.setAttribute('aria-expanded', ouvert);
+  toggle.textContent = ouvert ? 'Carte' : 'Couches & infos';
+}
+toggle.addEventListener('click', () => ouvrirPanneau(!panel.classList.contains('open')));
+document.getElementById('panel-close').addEventListener('click', () => ouvrirPanneau(false));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') ouvrirPanneau(false); });
 
 const initial = new URLSearchParams(location.search).get('commune');
 selectCommune(ALL_CODES.includes(initial) ? initial : '');
