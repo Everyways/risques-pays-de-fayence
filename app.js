@@ -157,8 +157,8 @@ const OVERLAYS = [
   { group: 'Séisme et radon', id: 'seisme', label: 'Zonage sismique', layer: wms(GEORISQUES_WMS, 'risq_zonage_sismique', attribGR) },
   { group: 'Séisme et radon', id: 'radon', label: 'Potentiel radon', layer: wms(GEORISQUES_WMS, 'RADON', attribGR) },
   { group: 'Crues en temps réel', id: 'vigicrues', label: 'Vigilance crues (Vigicrues)', note: 'Couleur du tronçon de cours d\'eau surveillé',
-    layer: wms('https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38174/8795eadb-cc82-424e-9e2a-48d296017d98.internet.map',
-      'Tronçons_SPCMET', '<a href="https://www.vigicrues.gouv.fr">Vigicrues</a>') },
+    layer: wms('https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/carto/geoide-catalogue/1.4/org_38174/8795eadb-cc82-424e-9e2a-48d296017d98.internet.map',
+      'Troncons_SPCME', '<a href="https://www.vigicrues.gouv.fr">Vigicrues</a>') },
   { group: 'Crues en temps réel', id: 'stations', label: 'Stations de mesure', note: 'Hauteur et débit en direct (Vigicrues, Hub\'Eau)', layer: stationsLayer },
 ];
 
