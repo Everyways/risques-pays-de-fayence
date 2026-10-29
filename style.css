@@ -49,3 +49,19 @@ footer { margin-top: 24px; font-size: .8rem; color: var(--muted); }
   #panel { width: 100%; border-right: 0; border-top: 1px solid var(--border); }
   #map { height: 55vh; flex: none; }
 }
+abbr[title] { text-decoration: underline dotted; cursor: help; }
+h3 { font-size: .95rem; margin: 16px 0 6px; }
+.tags li.sub { background: transparent; border: 1px solid var(--border); }
+.year { margin: 10px 0 4px; font-weight: 700; display: flex; justify-content: space-between; }
+.year span { font-weight: 400; color: var(--muted); font-size: .85rem; }
+.events { list-style: none; padding: 0; margin: 0; font-size: .85rem; }
+.events li { padding: 3px 0 3px 10px; border-left: 3px solid var(--border); margin-bottom: 2px; }
+.events li.feu { border-left-color: #d9480f; }
+.events li.inond { border-left-color: #1c7ed6; }
+.events li.secheresse { border-left-color: #c49a00; }
+.events li.mvt { border-left-color: #8d6e63; }
+.events small { color: var(--muted); display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: .8rem; color: var(--muted); margin: 4px 0 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: middle; }
+#glossaire dt { font-weight: 700; margin-top: 8px; }
+#glossaire dd { margin: 0 0 0 0; color: var(--muted); font-size: .9rem; }

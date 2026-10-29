@@ -11,7 +11,7 @@
 <body>
 <header>
   <h1>Risques — Pays de Fayence</h1>
-  <p>Débroussaillement (OLD), feux de forêt, inondation · données en direct Géorisques / IGN</p>
+  <p>Débroussaillement (OLD), feux de forêt, inondation et autres risques · données Géorisques / IGN / BDIFF</p>
 </header>
 <main>
   <aside id="panel">
@@ -25,7 +25,7 @@
     </section>
 
     <section id="fiche">
-      <p class="hint">Choisissez une commune (liste ou clic sur la carte) pour afficher ses risques.</p>
+      <p class="hint">Chargement…</p>
     </section>
 
     <section id="old-info">
@@ -39,8 +39,13 @@
       <p><a href="https://www.georisques.gouv.fr/me-preparer-me-proteger/OLD-obligations-legales-de-debroussaillement" target="_blank" rel="noopener">En savoir plus sur Géorisques</a></p>
     </section>
 
+    <section id="glossaire">
+      <h2>Glossaire</h2>
+      <dl id="glossaire-list"></dl>
+    </section>
+
     <footer>
-      <p>Sources : <a href="https://www.georisques.gouv.fr" target="_blank" rel="noopener">Géorisques</a> (MTE/BRGM), <a href="https://www.data.gouv.fr/datasets/debroussaillement" target="_blank" rel="noopener">IGN – DÉBROUSSAILLEMENT</a> (zonage informatif), <a href="https://geo.api.gouv.fr" target="_blank" rel="noopener">API Découpage administratif</a>.</p>
+      <p>Sources : <a href="https://www.georisques.gouv.fr" target="_blank" rel="noopener">Géorisques</a> (MTE/BRGM), <a href="https://www.data.gouv.fr/datasets/debroussaillement" target="_blank" rel="noopener">IGN – DÉBROUSSAILLEMENT</a> (zonage informatif), <a href="https://bdiff.agriculture.gouv.fr" target="_blank" rel="noopener">BDIFF</a> (incendies de forêt), <a href="https://geo.api.gouv.fr" target="_blank" rel="noopener">API Découpage administratif</a>.</p>
       <p>Information indicative, sans valeur réglementaire. Seuls les documents officiels (arrêtés, PPR, PLU) font foi.</p>
     </footer>
   </aside>
