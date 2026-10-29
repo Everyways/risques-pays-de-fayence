@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risques Pays de Fayence</title>
+<meta name="description" content="Carte des risques (obligations de débroussaillement, feux de forêt, inondation) pour les 9 communes du Pays de Fayence — données Géorisques et IGN.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Risques — Pays de Fayence</h1>
+  <p>Débroussaillement (OLD), feux de forêt, inondation · données en direct Géorisques / IGN</p>
+</header>
+<main>
+  <aside id="panel">
+    <label for="commune">Commune</label>
+    <select id="commune"><option value="">Toutes les communes</option></select>
+
+    <section id="layers">
+      <h2>Couches</h2>
+      <div id="layer-list"></div>
+      <label class="opacity">Opacité <input type="range" id="opacity" min="0.2" max="1" step="0.1" value="0.7"></label>
+    </section>
+
+    <section id="fiche">
+      <p class="hint">Choisissez une commune (liste ou clic sur la carte) pour afficher ses risques.</p>
+    </section>
+
+    <section id="old-info">
+      <h2>Obligations légales de débroussaillement</h2>
+      <ul>
+        <li>Débroussailler sur <strong>50 m</strong> autour des constructions (jusqu'à 100 m si le maire l'impose), y compris au-delà de votre propriété.</li>
+        <li>Débroussailler sur <strong>3 m</strong> de part et d'autre des voies d'accès privées.</li>
+        <li>En zone urbaine (PLU) : la totalité du terrain.</li>
+        <li>Dans le Var, les modalités sont fixées par arrêté préfectoral ; renseignez-vous en mairie.</li>
+      </ul>
+      <p><a href="https://www.georisques.gouv.fr/me-preparer-me-proteger/OLD-obligations-legales-de-debroussaillement" target="_blank" rel="noopener">En savoir plus sur Géorisques</a></p>
+    </section>
+
+    <footer>
+      <p>Sources : <a href="https://www.georisques.gouv.fr" target="_blank" rel="noopener">Géorisques</a> (MTE/BRGM), <a href="https://www.data.gouv.fr/datasets/debroussaillement" target="_blank" rel="noopener">IGN – DÉBROUSSAILLEMENT</a> (zonage informatif), <a href="https://geo.api.gouv.fr" target="_blank" rel="noopener">API Découpage administratif</a>.</p>
+      <p>Information indicative, sans valeur réglementaire. Seuls les documents officiels (arrêtés, PPR, PLU) font foi.</p>
+    </footer>
+  </aside>
+  <div id="map"></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
