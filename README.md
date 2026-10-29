@@ -13,14 +13,14 @@ Bagnols-en-Forêt, Callian, Fayence, Mons, Montauroux, Saint-Paul-en-Forêt, Sei
 
 ## Données BDIFF
 
-BDIFF n'a pas d'API : l'extrait est stocké dans `data/incendies.json` :
+BDIFF n'a pas d'API : un extrait est stocké dans `data/incendies.json`.
+Pour l'enrichir, exporter le CSV depuis https://bdiff.agriculture.gouv.fr/incendies (type de feu « F », période voulue), puis :
 
-```json
-{ "source": "BDIFF", "extrait_le": "JJ/MM/AAAA", "periode": "2006-2025",
-  "incendies": [{ "code_insee": "83133", "date": "2016-08-10", "surface_ha": 12.5 }] }
+```bash
+python3 scripts/bdiff_to_json.py Incendies.csv
 ```
 
-Site 100 % statique (HTML/JS + Leaflet), sans build. Lien direct vers une commune : `?commune=<code INSEE>`.
+Seules les 9 communes sont conservées ; les incendies déjà présents sont fusionnés (année + numéro).
 
 ## Lancer en local
 

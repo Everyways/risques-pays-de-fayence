@@ -1,0 +1,146 @@
+{
+ "source": "BDIFF – https://bdiff.agriculture.gouv.fr",
+ "extrait_le": "29/10/2026",
+ "periode": "2025",
+ "annees": [
+  2025
+ ],
+ "incendies": [
+  {
+   "annee": 2025,
+   "numero": "8951",
+   "code_insee": "83081",
+   "date": "2025-01-02",
+   "surface_ha": 0.0005,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2025,
+   "numero": "8958",
+   "code_insee": "83117",
+   "date": "2025-01-07",
+   "surface_ha": 0.005,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2025,
+   "numero": "9564",
+   "code_insee": "83138",
+   "date": "2025-04-23",
+   "surface_ha": 0.02,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "9218",
+   "code_insee": "83133",
+   "date": "2025-06-01",
+   "surface_ha": 0.02,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "9122",
+   "code_insee": "83055",
+   "date": "2025-06-14",
+   "surface_ha": 0.002,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "9082",
+   "code_insee": "83124",
+   "date": "2025-06-16",
+   "surface_ha": 0.003,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "8234",
+   "code_insee": "83080",
+   "date": "2025-07-02",
+   "surface_ha": 0.5,
+   "nature": "Naturelle"
+  },
+  {
+   "annee": 2025,
+   "numero": "8282",
+   "code_insee": "83133",
+   "date": "2025-07-06",
+   "surface_ha": 0.0002,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2025,
+   "numero": "8484",
+   "code_insee": "83008",
+   "date": "2025-07-16",
+   "surface_ha": 0.0002,
+   "nature": "Involontaire (particulier)"
+  },
+  {
+   "annee": 2025,
+   "numero": "9432",
+   "code_insee": "83081",
+   "date": "2025-09-13",
+   "surface_ha": 0.0002,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2025,
+   "numero": "9434",
+   "code_insee": "83138",
+   "date": "2025-09-15",
+   "surface_ha": 0.0001,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2025,
+   "numero": "9359",
+   "code_insee": "83117",
+   "date": "2025-09-21",
+   "surface_ha": 0.001,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "9435",
+   "code_insee": "83029",
+   "date": "2025-09-25",
+   "surface_ha": 0.0005,
+   "nature": "Accidentelle"
+  },
+  {
+   "annee": 2025,
+   "numero": "9442",
+   "code_insee": "83133",
+   "date": "2025-09-28",
+   "surface_ha": 0.02,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "9729",
+   "code_insee": "83133",
+   "date": "2025-09-30",
+   "surface_ha": 0.02,
+   "nature": null
+  },
+  {
+   "annee": 2025,
+   "numero": "9947",
+   "code_insee": "83080",
+   "date": "2025-10-07",
+   "surface_ha": 0.2,
+   "nature": "Involontaire (travaux)"
+  },
+  {
+   "annee": 2025,
+   "numero": "11033",
+   "code_insee": "83081",
+   "date": "2025-10-25",
+   "surface_ha": 0.0015,
+   "nature": "Involontaire (travaux)"
+  }
+ ]
+}

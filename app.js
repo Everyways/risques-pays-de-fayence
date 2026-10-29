@@ -22,6 +22,7 @@ const getJSON = url => fetch(url).then(r => { if (!r.ok) throw new Error(r.statu
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const frDate = s => { const [d, m, y] = (s || '').split('/'); return new Date(+y, +m - 1, +d); };
 const fmtDate = d => d.toLocaleDateString('fr-FR');
+const fmtSurface = ha => ha >= 1 ? `${ha.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} ha` : `${Math.round(ha * 10000).toLocaleString('fr-FR')} m²`;
 
 // Glossaire : chaque sigle est aussi annoté (infobulle) partout dans le panneau
 const GLOSSAIRE = {
@@ -258,10 +259,11 @@ async function renderFiche(codes) {
   });
   for (const f of (bdiff?.incendies || []).filter(f => codes.includes(f.code_insee))) {
     const date = new Date(f.date);
-    const surface = f.surface_ha != null ? `${(+f.surface_ha).toLocaleString('fr-FR')} ha parcourus` : 'surface non renseignée';
+    const surface = f.surface_ha != null ? `${fmtSurface(+f.surface_ha)} parcourus` : 'surface non renseignée';
     events.push({
       date, type: 'feu', communes: [f.code_insee], surface: +f.surface_ha || 0,
-      titre: 'Incendie de forêt (BDIFF)', detail: `Le ${fmtDate(date)} · ${surface}`,
+      titre: 'Incendie de forêt (BDIFF)',
+      detail: [`Le ${fmtDate(date)}`, surface, f.nature && `cause : ${f.nature.toLowerCase()}`].filter(Boolean).join(' · '),
     });
   }
 
@@ -275,7 +277,7 @@ async function renderFiche(codes) {
     }
     for (const [annee, evts] of parAnnee) {
       const ha = evts.reduce((s, e) => s + (e.surface || 0), 0);
-      const resume = [`${evts.length} événement(s)`, ha ? `${ha.toLocaleString('fr-FR')} ha brûlés` : ''].filter(Boolean).join(' · ');
+      const resume = [`${evts.length} événement(s)`, ha ? `${fmtSurface(ha)} brûlés` : ''].filter(Boolean).join(' · ');
       html += `<div class="year">${annee}<span>${resume}</span></div><ul class="events">` + evts.map(e =>
         `<li class="${e.type}">${esc(e.titre)}<small>${esc(e.detail)}${global ? ` · ${esc(e.communes.map(nomCommune).join(', '))}` : ''}</small></li>`
       ).join('') + '</ul>';
@@ -285,7 +287,7 @@ async function renderFiche(codes) {
   }
   if (catnatKo) html += `<p class="error">Arrêtés CatNat indisponibles pour ${catnatKo === codes.length ? 'le moment' : `${catnatKo} commune(s)`}.</p>`;
   html += bdiff
-    ? `<p class="hint">Incendies : BDIFF, extrait du ${esc(bdiff.extrait_le)} (${esc(bdiff.periode)}).</p>`
+    ? `<p class="hint">Incendies de forêt : BDIFF, années disponibles ${esc(bdiff.periode)} (extrait du ${esc(bdiff.extrait_le)}).</p>`
     : '<p class="hint">Les incendies de forêt BDIFF seront ajoutés prochainement.</p>';
 
   html += `<p><a href="https://www.georisques.gouv.fr/mes-risques/connaitre-les-risques-pres-de-chez-moi" target="_blank" rel="noopener">Rapport détaillé à une adresse sur Géorisques</a></p>`;
